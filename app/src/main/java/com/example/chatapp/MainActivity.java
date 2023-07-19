@@ -3,12 +3,16 @@ package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "MainActivity";
     EditText etId, etPw;
+    ProgressBar progressBar; // 로딩바
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
         etId = findViewById(R.id.etId);//id 입력 et
         etPw = findViewById(R.id.etPw);//pw 입력 et
+
+        progressBar = findViewById(R.id.Loading); // 로딩 바
 
         Button btLogin = findViewById(R.id.btLogin);//로그인 버튼
         btLogin.setOnClickListener(new View.OnClickListener() {//로그인 버튼을 눌렀을 때
@@ -46,18 +53,27 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "비밀번호를 입력하세요", Toast.LENGTH_LONG).show();//비밀번호 미입력 시 토스트 표시
                     return;//비밀번호 미입력 시 토스트 표시하고 버튼 클릭 수행하지않음
                 }
+                progressBar.setVisibility(view.VISIBLE); // 로그인 버튼을 눌렀을 때 위 예외상황이 아니라면 로그인 될 때 까지 로딩바를 활성화
                 mAuth.signInWithEmailAndPassword(stEmail, stPw)//FireBase 모듈을 이용한 로그인 객체 생성
                         .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.GONE); // 로그인이 완료되면 로딩바 비활성화
                                 if (task.isSuccessful()) {
                                     // 로그인에 성공하면
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    //updateUI(user);
+                                    String stUserEmail = user.getEmail();
+                                    String stUserName = user.getDisplayName();
+
+                                    SharedPreferences sharedPref = getSharedPreferences("shared", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("email", stUserEmail);
+                                    editor.commit();
 
                                     Toast.makeText(MainActivity.this, "로그인 성공!!", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                                    Intent intent = new Intent(MainActivity.this, TabActivity.class);
+                                    intent.putExtra("email", stEmail);// ChatActivity에 email값을 intent
                                     startActivity(intent);
                                 } else {
                                     // If sign in fails, display a message to the user.
@@ -86,10 +102,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "비밀번호를 입력하세요", Toast.LENGTH_LONG).show();//비밀번호 미입력 시 토스트 표시
                     return;//비밀번호 미입력 시 토스트 표시하고 버튼 클릭 수행하지않음
                 }
+                progressBar.setVisibility(View.VISIBLE); // 회원가입이 완료되면 로딩바 비활성화
                 mAuth.createUserWithEmailAndPassword(stEmail, stPw) //FireBase 모듈을 이용한 회원가입 객체 생성
                         .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.GONE); // 회원가입이 완료되면 로딩바 비활성화
                                 if (task.isSuccessful()) { // 회원가입 을 성공하면
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
