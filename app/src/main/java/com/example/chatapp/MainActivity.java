@@ -20,17 +20,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Hashtable;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "MainActivity";
     EditText etId, etPw;
     ProgressBar progressBar; // 로딩바
+    FirebaseDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        database = FirebaseDatabase.getInstance();//DB초기화
         mAuth = FirebaseAuth.getInstance();
 
         etId = findViewById(R.id.etId);//id 입력 et
@@ -114,6 +121,14 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "회원가입 성공!!", Toast.LENGTH_SHORT).show();
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     //updateUI(user);
+                                    DatabaseReference myRef = database.getReference("users").child(user.getUid()); //Firebase db에서 users 참조항목을 생성하고, 회원가입 할 때 생긴 유니크아이디를 자식으로 참조
+
+
+                                    Hashtable<String, String> users //여러 데이터를 같이 전송하는 해쉬 테이블 자료형
+                                            = new Hashtable<String, String>();
+                                    users.put("email", user.getEmail());
+
+                                    myRef.setValue(users);
                                 } else { //회원가입 실패하면
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());

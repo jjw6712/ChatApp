@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,11 +29,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 //import com.example.chatapp.databinding.FragmentNotificationsBinding;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -48,6 +51,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageRef;
     String stEmail;
+    File localFile;
     //private FragmentNotificationsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -85,6 +89,28 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+
+
+        try {
+            localFile = File.createTempFile("images", "jpg");
+            StorageReference riversRef = storageRef.child("users").child(stEmail).child("profile.jpg");
+            riversRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    // Local temp file has been created
+                    Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    ivUser.setImageBitmap(bitmap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return root;
     }
 
