@@ -26,6 +26,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -98,8 +101,14 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     // Local temp file has been created
-                    Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                    ivUser.setImageBitmap(bitmap);
+                    // Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    // ivUser.setImageBitmap(bitmap);
+
+                    // Glide로 이미지를 로드하고 둥근 모서리 처리를 적용합니다.
+                    Glide.with(getContext())
+                            .load(localFile)
+                            .transform(new CenterCrop(), new RoundedCorners(200)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
+                            .into(ivUser);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -112,6 +121,7 @@ public class ProfileFragment extends Fragment {
         }
 
         return root;
+
     }
 
     @Override

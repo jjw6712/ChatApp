@@ -1,0 +1,7 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="65dp" /> <!-- 반지름 값을 조정하여 모서리의 둥글기를 조절 -->
+    <solid android:color="@android:color/transparent" /> <!-- 이미지 배경 색상 (여기서는 투명) -->
+    <stroke
+        android:color="@color/black"
+    android:width="2dp" /> <!-- 테두리 두께 (여기서는 2dp) -->
+</shape>

@@ -72,15 +72,18 @@ public class MainActivity extends AppCompatActivity {
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     String stUserEmail = user.getEmail();
                                     String stUserName = user.getDisplayName();
+                                    Log.d(TAG, "Name: "+stUserName.toString());
 
                                     SharedPreferences sharedPref = getSharedPreferences("shared", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("email", stUserEmail);
+                                    editor.putString("name", stUserName);
                                     editor.commit();
 
                                     Toast.makeText(MainActivity.this, "로그인 성공!!", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(MainActivity.this, TabActivity.class);
                                     intent.putExtra("email", stEmail);// ChatActivity에 email값을 intent
+                                    intent.putExtra("name", stUserName);
                                     startActivity(intent);
                                 } else {
                                     // If sign in fails, display a message to the user.
@@ -98,48 +101,9 @@ public class MainActivity extends AppCompatActivity {
         btRegister.setOnClickListener(new View.OnClickListener() {//회원가입 버튼 눌렀을 때
             @Override
             public void onClick(View view) {
-                String stEmail = etId.getText().toString();//etId에서 받은 문자열을 stEmial 변수에 저장
-                String stPw = etPw.getText().toString();//etPw에서 받은 문자열을 stPw 변수에 저장
-
-                if (stEmail.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "이메일을 입력하세요", Toast.LENGTH_LONG).show();//이메일 미입력 시 토스트 표시
-                    return;//이메일 미입력 시 토스트 표시하고 버튼 클릭 수행하지않음
-                }
-                if (stPw.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "비밀번호를 입력하세요", Toast.LENGTH_LONG).show();//비밀번호 미입력 시 토스트 표시
-                    return;//비밀번호 미입력 시 토스트 표시하고 버튼 클릭 수행하지않음
-                }
-                progressBar.setVisibility(View.VISIBLE); // 회원가입이 완료되면 로딩바 비활성화
-                mAuth.createUserWithEmailAndPassword(stEmail, stPw) //FireBase 모듈을 이용한 회원가입 객체 생성
-                        .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE); // 회원가입이 완료되면 로딩바 비활성화
-                                if (task.isSuccessful()) { // 회원가입 을 성공하면
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "createUserWithEmail:success");
-                                    Toast.makeText(MainActivity.this, "회원가입 성공!!", Toast.LENGTH_SHORT).show();
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    //updateUI(user);
-                                    DatabaseReference myRef = database.getReference("users").child(user.getUid()); //Firebase db에서 users 참조항목을 생성하고, 회원가입 할 때 생긴 유니크아이디를 자식으로 참조
-
-
-                                    Hashtable<String, String> users //여러 데이터를 같이 전송하는 해쉬 테이블 자료형
-                                            = new Hashtable<String, String>();
-                                    users.put("email", user.getEmail());
-
-                                    myRef.setValue(users);
-                                } else { //회원가입 실패하면
-                                    // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    Toast.makeText(MainActivity.this, "회원가입 실패",
-                                            Toast.LENGTH_SHORT).show();
-                                    //updateUI(null);
+                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                startActivity(intent);
                                 }
-                            }
-                        });
-
-            }
         });
     }
 

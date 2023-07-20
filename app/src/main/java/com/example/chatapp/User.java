@@ -1,8 +1,7 @@
 package com.example.chatapp;
 
-public class Chat {
+public class User {
     String email;
-    String message;
     String name;
 
     public String getName() {
@@ -19,13 +18,5 @@ public class Chat {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 }

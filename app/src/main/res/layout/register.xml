@@ -9,18 +9,29 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chat App Test"
+        android:text="회원가입"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/etId"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/tvTitle"
-        android:layout_marginTop="150dp"/>
+        android:layout_marginTop="140dp" />
 
     <EditText
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:hint="name"
+        android:id="@+id/etName"
+        android:inputType="textEmailAddress"/>
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/etName"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,20 +51,11 @@
         android:inputType="textPassword"/>
 
 
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/etPw"
-        android:layout_marginTop="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Login"
-        android:id="@+id/btLogin"/>
 
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/btLogin"
+        app:layout_constraintTop_toBottomOf="@+id/etPw"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,7 +68,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/etPw"
-        app:layout_constraintTop_toBottomOf="@id/btLogin"
+        app:layout_constraintTop_toBottomOf="@id/etId"
         android:visibility="gone"
         android:id="@+id/Loading"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
