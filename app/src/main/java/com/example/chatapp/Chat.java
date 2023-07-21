@@ -4,6 +4,15 @@ public class Chat {
     String email;
     String message;
     String name;
+    String time;
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 
     public String getName() {
         return name;

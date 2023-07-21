@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,12 +36,13 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     EditText etSendMessage; //채팅 매세지 et
     Button btSend; //전송 버튼
-    String stEmail, stName;
+    String stEmail, stName, stTime;
     FirebaseDatabase database;
     ArrayList<Chat> chatArrayList; //Chat 클래스 모델을 저장하는 배열
     String chatKey;
     ChildEventListener childEventListener;
     Chat chat;
+    TextView tvChatName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +54,8 @@ public class ChatActivity extends AppCompatActivity {
         // 로그인된 사용자의 이메일 주소를 얻어옴.
         String currentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail().toString();
         Log.d(TAG, "currentUSer: "+currentUser);
+
+
 
         // 둘만의 채팅방을 구분하기 위한 키를 생성
         if (currentUser != null) {
@@ -69,6 +74,8 @@ public class ChatActivity extends AppCompatActivity {
         }
         Log.d(TAG, "chtkey: "+chatKey);
 
+        tvChatName = findViewById(R.id.tvChatName);
+        tvChatName.setText(stName);
         chatArrayList = new ArrayList<>(); //Chat 클래스 모델을 저장하는 배열객체 생성
 
         database = FirebaseDatabase.getInstance();//Firebase db 객체 생성
@@ -94,8 +101,11 @@ public class ChatActivity extends AppCompatActivity {
                     String commendKey = dataSnapshot.getKey();
                     String stEmail =  chat.getEmail();
                     String stSandMessage = chat.getMessage();
+                    String stTime = parseTimeFromKey(dataSnapshot.getKey()); // 시간 정보만 추출하여 stTime에 저장
                     Log.d(TAG, "stEmail: "+stEmail);
                     Log.d(TAG, "stSandMessage: "+stSandMessage);
+                    Log.d(TAG, "stTime: "+stTime);
+                    chat.setTime(stTime);
                     chatArrayList.add(chat);//Chat 클래스 모델의 객채를 chatArrayList에 추가
                     mAdapter.notifyDataSetChanged(); // 어댑터에 변경사항을 알리고, 해당 아이템의 뷰를 업데이트
                     // ...
@@ -144,17 +154,17 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference ref = database.getReference("message"); //Firebase db에서 message 참조항목을 생성하고, 날짜를 자식 참조하여 myRef 변수에 저장
         ref.addChildEventListener(childEventListener);
 
-        btSend.setOnClickListener(new View.OnClickListener() { // 전송 버튼을 클릭했을 때의 동작 정의
+        btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String stSendMessage = etSendMessage.getText().toString(); // 채팅 메세지et에 적은 문자열을 저장
 
                 Calendar c = Calendar.getInstance();// 날짜를 받아오기 위한 캘린더 객체 생성
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss");
-                String datetime = dateFormat.format(c.getTime());// 현재 시간을 날짜 포맷에 맞게 저장
+                stTime = dateFormat.format(c.getTime());// 현재 시간을 날짜 포맷에 맞게 저장
 
                 DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);//chats 노드를 생성하고 하위에 채팅방 식별키(chatKey)를 생성
-                DatabaseReference messageRef = chatRef.child(datetime); // chats노드밑에 식별키 밑에 날짜를 하위로 두고 메세지 데이터를 저장하는 messageRef에 저장
+                DatabaseReference messageRef = chatRef.child(stTime); // chats노드밑에 식별키 밑에 날짜를 하위로 두고 메세지 데이터를 저장하는 messageRef에 저장
 
                 Hashtable<String, String> message = new Hashtable<>();
                 message.put("email", stEmail); // 사용자 이메일
@@ -189,6 +199,19 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         // 등록한 ChildEventListener를 해제합니다.
         chatRef.removeEventListener(childEventListener);
+    }
+    private String parseTimeFromKey(String key) {
+        // 예시로 key가 "2023-7월-20 06:06:29"와 같은 형태라고 가정합니다.
+        // 먼저 "-"와 " "로 문자열을 분리합니다.
+        String[] parts = key.split("[- ]");
+        if (parts.length >= 4) {
+            // 시간 정보가 "06:06:29"와 같이 뒤에 위치하므로, ":"으로 문자열을 분리하고 첫 번째 요소를 반환합니다.
+            String[] timeParts = parts[parts.length - 1].split(":");
+            if (timeParts.length >= 2) {
+                return timeParts[0] + ":" + timeParts[1];
+            }
+        }
+        return key; // 기본적으로 key 값을 반환합니다.
     }
 
 }

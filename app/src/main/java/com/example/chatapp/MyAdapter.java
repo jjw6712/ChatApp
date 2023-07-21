@@ -2,6 +2,7 @@ package com.example.chatapp;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
@@ -28,6 +30,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<Chat> mDataSet;
     String stMyEmail;
     String stMyName;
+    String stMyTime;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -36,7 +39,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
         public TextView tvName;
-        public ImageView ivUser;
+        public TextView tvTime;
+       private final ImageView ivUser;
 
         public ViewHolder(View view) {
             super(view);
@@ -45,11 +49,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             textView = (TextView) view.findViewById(R.id.tvChat);//리사이클러 뷰의 각 요소의 tv
             ivUser = (ImageView) view.findViewById(R.id.ivUser);
             tvName = (TextView) view.findViewById(R.id.tvName);
+            tvTime = (TextView) view.findViewById(R.id.tvTime);
 
         }
 
         public TextView getTextView() {
             return textView;
+        }
+        public TextView getTvTime(){
+            return tvTime;
         }
     }
 
@@ -65,7 +73,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
      * Initialize the dataset of the Adapter.
      *
      * @param myDataSet String[] containing the data to populate views to be used
-     * by RecyclerView.
+     *                  by RecyclerView.
+     * @param stTime
      */
     public MyAdapter(ArrayList<Chat> myDataSet, String stEmail, String stName) { //ChatActivity에서 메세지 배열과 현재 로그인 된 유저의 Email을 받아온다
         mDataSet = myDataSet;
@@ -97,6 +106,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // contents of the view with that element
         viewHolder.getTextView().setText(mDataSet.get(position).getMessage());
         viewHolder.tvName.setText(stMyName);
+        viewHolder.getTvTime().setText(mDataSet.get(position).getTime());
 
         // Firebase Storage에서 사용자의 프로필 사진을 다운로드하여 이미지뷰에 설정합니다.
         String profileImageRef = "users/" + stMyEmail + "/profile.jpg";
@@ -112,7 +122,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                             .load(uri)
                             .placeholder(R.drawable.freinds) // You can add a placeholder image if desired.
                             .error(R.mipmap.ic_launcher) // You can add an error image if there's a failure.
-                            .transform(new CenterCrop(), new RoundedCorners(85)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
+                            .transform(new CenterCrop(), new RoundedCorners(45)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
                             .into(viewHolder.ivUser);
                 } else {
                     // uri가 null인 경우 기본 이미지를 설정하거나 오류 처리를 수행할 수 있습니다.

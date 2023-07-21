@@ -1,8 +1,11 @@
 package com.example.chatapp.ui.notifications;
 
 import static android.content.ContentValues.TAG;
+import static android.view.View.GONE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,21 +56,43 @@ public class ProfileFragment extends Fragment {
     ImageView ivUser;
     private FirebaseStorage storage;
     private StorageReference storageRef;
-    String stEmail;
+    String stEmail, stName;
     File localFile;
+    TextView profileName, ivUsertext;
+
+
+    // 정적 메서드를 이용해 새로운 ProfileFragment 인스턴스를 생성하고 인자를 전달합니다.
+    public static ProfileFragment newInstance(String email, String name) {
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle args = new Bundle();
+        args.putString("email", email);
+        args.putString("name", name);
+        fragment.setArguments(args);
+        return fragment;
+    }
     //private FragmentNotificationsBinding binding;
 
+    @SuppressLint("MissingInflatedId")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
        // NotificationsViewModel notificationsViewModel =
        //         new ViewModelProvider(this).get(NotificationsViewModel.class);
 
         //binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
+        ivUser = root.findViewById(R.id.ivUser);
+        profileName = root.findViewById(R.id.profileName);
+        ivUsertext = root.findViewById(R.id.ivUserText);
+        // 이미지를 선택하지 않았을 때만 텍스트가 보이도록 설정
+
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("shared", Context.MODE_PRIVATE);
         stEmail = sharedPref.getString("email", "");
+        stName = sharedPref.getString("name", "");
         Log.d(TAG, "stEmail: " + stEmail);
+
+        profileName.setText(stName+"님의 프로필");
 
 
         storage = FirebaseStorage.getInstance();
@@ -109,6 +134,7 @@ public class ProfileFragment extends Fragment {
                             .load(localFile)
                             .transform(new CenterCrop(), new RoundedCorners(200)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
                             .into(ivUser);
+                    ivUsertext.setVisibility(View.GONE);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -128,7 +154,7 @@ public class ProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == REQUEST_IMAGE_CODE){
+        if (requestCode == REQUEST_IMAGE_CODE && resultCode == Activity.RESULT_OK && data != null) {
             Uri image = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), image);
@@ -143,6 +169,7 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Log.d(TAG, taskSnapshot.toString());
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

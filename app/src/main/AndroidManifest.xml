@@ -16,6 +16,9 @@
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
+            android:name=".ProfileActivity"
+            android:label="Profile Activity" />
+        <activity
             android:name=".TabActivity"
             android:exported="false"
             android:label="@string/title_activity_tab" />

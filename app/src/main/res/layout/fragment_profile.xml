@@ -7,7 +7,7 @@
     tools:context=".ui.notifications.ProfileFragment">
 
     <TextView
-        android:id="@+id/text_notifications"
+        android:id="@+id/profileName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -20,17 +20,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/ivUser"
+    <FrameLayout
+        android:id="@+id/userProfileContainer"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="28dp"
-
-        android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications"
-        android:scaleType="centerCrop"
-        android:background="@drawable/profile_bubble"/>
+        app:layout_constraintTop_toBottomOf="@+id/profileName">
+
+        <ImageView
+            android:id="@+id/ivUser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@drawable/profile_bubble"
+            android:clickable="true" />
+
+        <TextView
+            android:id="@+id/ivUserText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="눌러서 사진 가져오기"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:visibility="visible"
+            />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

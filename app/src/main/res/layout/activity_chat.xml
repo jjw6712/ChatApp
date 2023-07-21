@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#d7e9fd"
     tools:context=".ChatActivity">
 
     <Button
@@ -11,9 +12,22 @@
         android:layout_height="wrap_content"
         android:src="@drawable/back"
         android:background="@drawable/back"
+        android:textColor="@color/black"
         android:id="@+id/btFinish"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:gravity="center"
+        android:text="이름"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/btFinish"
+        android:id="@+id/tvChatName"
+        tools:layout_editor_absoluteY="10dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
