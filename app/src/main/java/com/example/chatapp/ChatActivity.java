@@ -91,6 +91,25 @@ public class ChatActivity extends AppCompatActivity {
         mAdapter = new MyAdapter(chatArrayList, stEmail, stName);
         recyclerView.setAdapter(mAdapter);
 
+        // 스크롤 자동 이동
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (bottom < oldBottom) {
+                    recyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            int itemCount = mAdapter.getItemCount();
+                            if (itemCount > 0) {
+                                recyclerView.smoothScrollToPosition(itemCount - 1);
+                            }
+                        }
+                    }, 100);
+                }
+            }
+        });
+
             childEventListener = new ChildEventListener() { // 하위 이벤트 수신 대기 https://firebase.google.com/docs/database/android/lists-of-data?hl=ko
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -171,6 +190,20 @@ public class ChatActivity extends AppCompatActivity {
                 message.put("message", stSendMessage); // 채팅 메시지
 
                 messageRef.setValue(message); // 채팅 메시지 데이터를 해당 채팅방의 날짜 하위에 저장
+
+                // EditText 내용 비우기
+                etSendMessage.setText("");
+                if (!stSendMessage.isEmpty()) {
+                    // ... (기존 코드 생략)
+
+                    // 메시지를 보낸 후 스크롤 자동 이동
+                    recyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollToBottom();
+                        }
+                    }, 100);
+                }
             }
         });
 
@@ -182,7 +215,12 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-
+    }
+    private void scrollToBottom() {
+        int itemCount = mAdapter.getItemCount();
+        if (itemCount > 0) {
+            recyclerView.smoothScrollToPosition(itemCount - 1);
+        }
     }
     @Override
     protected void onStart() {
