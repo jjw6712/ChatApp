@@ -127,7 +127,14 @@ public class ChatActivity extends AppCompatActivity {
                     chat.setTime(stTime);
                     chatArrayList.add(chat);//Chat 클래스 모델의 객채를 chatArrayList에 추가
                     mAdapter.notifyDataSetChanged(); // 어댑터에 변경사항을 알리고, 해당 아이템의 뷰를 업데이트
-                    // ...
+
+                    // 메시지를 보낸 후 스크롤 자동 이동
+                    recyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollToBottom();
+                        }
+                    }, 100);
                 }
 
             @Override
