@@ -1,6 +1,10 @@
 package com.example.chatapp;
 
+import static androidx.fragment.app.FragmentManager.TAG;
+
+import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,22 +32,20 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
     public void setCurrentUserEmail(String email) {
         this.currentUserEmail = email;
     }
-
+    // 아이템 클릭 이벤트를 처리할 리스너 인터페이스
     public interface OnItemClickListener {
         void onItemClick(ChatRoom chatRoom);
     }
 
-    private OnItemClickListener listener;
+    // 리스너 객체 참조를 저장하는 변수
+    private OnItemClickListener mListener = null;
 
+    // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
     public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+        this.mListener = listener;
     }
 
-    private View.OnClickListener profileClickListener;
 
-    public void setProfileClickListener(View.OnClickListener listener) {
-        profileClickListener = listener;
-    }
 
     /**
      * Provide a reference to the type of views that you are using
@@ -86,15 +88,27 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         return new ChatRoomViewHolder(view);
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onBindViewHolder(ChatRoomViewHolder viewHolder, int position) {
         ChatRoom chatRoom = mDataSet.get(position);
-        viewHolder.tvName.setText(chatRoom.getName());
+        viewHolder.tvName.setText(chatRoom.getPartnerName());
         viewHolder.tvMessage.setText(chatRoom.getMessage());
-        viewHolder.tvTime.setText(parseTimeFromKey(chatRoom.getTime()));
+
+        String time = chatRoom.getTime();
+        Log.d(TAG, "tvTime: "+time);
+        String parsedTime = parseTimeFromKey(time);
+        Log.d(TAG, "pasrsedTime: "+parsedTime);
+        viewHolder.tvTime.setText(parsedTime);
+
 
         // Firebase Storage에서 사용자의 프로필 사진을 다운로드하여 이미지뷰에 설정합니다.
-        String profileImageRef = "users/" + chatRoom.getEmail() + "/profile.jpg";
+        String profileImageRef;
+        if(currentUserEmail.equals(chatRoom.getPartnerEmail())) {
+            profileImageRef = "users/" + chatRoom.getEmail() + "/profile.jpg";
+        }else{
+            profileImageRef = "users/" + chatRoom.getPartnerEmail() + "/profile.jpg";
+        }
         StorageReference profileRef = FirebaseStorage.getInstance().getReference().child(profileImageRef);
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -122,11 +136,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listener != null) {
+                if (mListener != null) {
                     int clickedPosition = viewHolder.getAdapterPosition();
                     ChatRoom chatroom = mDataSet.get(clickedPosition);
-                    if (!chatroom.getEmail().equals(currentUserEmail)) {
-                        listener.onItemClick(chatroom);
+                    Log.d(TAG, "clickEmail: "+chatroom.getEmail());
+                    if (!chatroom.getPartnerEmail().equals(currentUserEmail)) {
+                        mListener.onItemClick(chatroom);
                     }
                 }
             }

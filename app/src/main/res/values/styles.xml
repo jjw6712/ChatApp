@@ -2,5 +2,8 @@
 <resources>
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- 추가적인 스타일 정의 (옵션) -->
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">#d7e9fd</item>
+        <item name="android:windowLightStatusBar">true</item>   <!-- 상태바 아이콘(true: 검정 / false: 흰색) -->
     </style>
 </resources>

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +36,7 @@ public class ChatActivity extends AppCompatActivity {
     MyAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     EditText etSendMessage; //채팅 매세지 et
-    Button btSend; //전송 버튼
+    ImageButton btSend; //전송 버튼
     String stEmail, stName, stTime;
     FirebaseDatabase database;
     ArrayList<Chat> chatArrayList; //Chat 클래스 모델을 저장하는 배열
@@ -110,23 +111,34 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-            childEventListener = new ChildEventListener() { // 하위 이벤트 수신 대기 https://firebase.google.com/docs/database/android/lists-of-data?hl=ko
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                    Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
 
-                    // A new comment has been added, add it to the displayed list
-                    chat = dataSnapshot.getValue(Chat.class);
-                    String commendKey = dataSnapshot.getKey();
-                    String stEmail =  chat.getEmail();
-                    String stSandMessage = chat.getMessage();
-                    String stTime = parseTimeFromKey(dataSnapshot.getKey()); // 시간 정보만 추출하여 stTime에 저장
-                    Log.d(TAG, "stEmail: "+stEmail);
-                    Log.d(TAG, "stSandMessage: "+stSandMessage);
-                    Log.d(TAG, "stTime: "+stTime);
-                    chat.setTime(stTime);
-                    chatArrayList.add(chat);//Chat 클래스 모델의 객채를 chatArrayList에 추가
-                    mAdapter.notifyDataSetChanged(); // 어댑터에 변경사항을 알리고, 해당 아이템의 뷰를 업데이트
+
+        btSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String stSendMessage = etSendMessage.getText().toString().trim(); // trim() 함수를 사용하여 문자열 앞뒤의 공백을 제거
+                if(stSendMessage.isEmpty()) {
+                   return;
+                }
+                stSendMessage = etSendMessage.getText().toString(); // 채팅 메세지et에 적은 문자열을 저장
+                Calendar c = Calendar.getInstance();// 날짜를 받아오기 위한 캘린더 객체 생성
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss");
+                stTime = dateFormat.format(c.getTime());// 현재 시간을 날짜 포맷에 맞게 저장
+
+                DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);//chats 노드를 생성하고 하위에 채팅방 식별키(chatKey)를 생성
+                DatabaseReference messageRef = chatRef.child(stTime); // chats노드밑에 식별키 밑에 날짜를 하위로 두고 메세지 데이터를 저장하는 messageRef에 저장
+
+                Hashtable<String, String> message = new Hashtable<>();
+                //message.put("email", stEmail); // 상대방 이메일
+                message.put("message", stSendMessage); // 채팅 메시지
+                message.put("senduser", currentUser);
+                message.put("receivuser", stEmail);
+                messageRef.setValue(message); // 채팅 메시지 데이터를 해당 채팅방의 날짜 하위에 저장
+
+                // EditText 내용 비우기
+                etSendMessage.setText("");
+                if (!stSendMessage.isEmpty()) {
+                    // ... (기존 코드 생략)
 
                     // 메시지를 보낸 후 스크롤 자동 이동
                     recyclerView.postDelayed(new Runnable() {
@@ -136,6 +148,56 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }, 100);
                 }
+            }
+        });
+
+        Button btFinish = findViewById(R.id.btFinish);
+        btFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+    }
+    private void scrollToBottom() {
+        int itemCount = mAdapter.getItemCount();
+        if (itemCount > 0) {
+            recyclerView.smoothScrollToPosition(itemCount - 1);
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // chatArrayList를 초기화
+        chatArrayList.clear();// 초기화를 하므로써 ChatActivity가 초기화 될 때 마다 기존의 메세지를 중복 표시하는 예외를 해결할 수 있다.
+        childEventListener = new ChildEventListener() { // 하위 이벤트 수신 대기 https://firebase.google.com/docs/database/android/lists-of-data?hl=ko
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
+                // A new comment has been added, add it to the displayed list
+                chat = dataSnapshot.getValue(Chat.class);
+                String commendKey = dataSnapshot.getKey();
+                String stEmail =  chat.getEmail();
+                String stSandMessage = chat.getMessage();
+                String stTime = parseTimeFromKey(dataSnapshot.getKey()); // 시간 정보만 추출하여 stTime에 저장
+                Log.d(TAG, "stEmail: "+stEmail);
+                Log.d(TAG, "stSandMessage: "+stSandMessage);
+                Log.d(TAG, "stTime: "+stTime);
+                chat.setTime(stTime);
+                chatArrayList.add(chat);//Chat 클래스 모델의 객채를 chatArrayList에 추가
+                mAdapter.notifyDataSetChanged(); // 어댑터에 변경사항을 알리고, 해당 아이템의 뷰를 업데이트
+
+                // 메시지를 보낸 후 스크롤 자동 이동
+                recyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollToBottom();
+                    }
+                }, 100);
+            }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
@@ -177,61 +239,6 @@ public class ChatActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         };
-        DatabaseReference ref = database.getReference("message"); //Firebase db에서 message 참조항목을 생성하고, 날짜를 자식 참조하여 myRef 변수에 저장
-        ref.addChildEventListener(childEventListener);
-
-        btSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String stSendMessage = etSendMessage.getText().toString(); // 채팅 메세지et에 적은 문자열을 저장
-
-                Calendar c = Calendar.getInstance();// 날짜를 받아오기 위한 캘린더 객체 생성
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss");
-                stTime = dateFormat.format(c.getTime());// 현재 시간을 날짜 포맷에 맞게 저장
-
-                DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);//chats 노드를 생성하고 하위에 채팅방 식별키(chatKey)를 생성
-                DatabaseReference messageRef = chatRef.child(stTime); // chats노드밑에 식별키 밑에 날짜를 하위로 두고 메세지 데이터를 저장하는 messageRef에 저장
-
-                Hashtable<String, String> message = new Hashtable<>();
-                message.put("email", stEmail); // 사용자 이메일
-                message.put("message", stSendMessage); // 채팅 메시지
-
-                messageRef.setValue(message); // 채팅 메시지 데이터를 해당 채팅방의 날짜 하위에 저장
-
-                // EditText 내용 비우기
-                etSendMessage.setText("");
-                if (!stSendMessage.isEmpty()) {
-                    // ... (기존 코드 생략)
-
-                    // 메시지를 보낸 후 스크롤 자동 이동
-                    recyclerView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            scrollToBottom();
-                        }
-                    }, 100);
-                }
-            }
-        });
-
-        Button btFinish = findViewById(R.id.btFinish);
-        btFinish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
-    }
-    private void scrollToBottom() {
-        int itemCount = mAdapter.getItemCount();
-        if (itemCount > 0) {
-            recyclerView.smoothScrollToPosition(itemCount - 1);
-        }
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
         // 채팅방의 데이터를 Firebase Realtime Database에서 불러오기 위해 해당 채팅방에 대한 DatabaseReference를 생성합니다.
         DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         chatRef.addChildEventListener(childEventListener); // 채팅방에 대한 ChildEventListener를 등록하여 채팅 메시지가 추가될 때마다 데이터를 받아옵니다.
@@ -245,6 +252,15 @@ public class ChatActivity extends AppCompatActivity {
         // 등록한 ChildEventListener를 해제합니다.
         chatRef.removeEventListener(childEventListener);
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 액티비티가 화면에서 사라지면 Firebase Realtime Database에서의 데이터 수신을 중지합니다.
+        DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
+        // 등록한 ChildEventListener를 해제합니다.
+        chatRef.removeEventListener(childEventListener);
+    }
+
     private String parseTimeFromKey(String key) {
         // 예시로 key가 "2023-7월-20 06:06:29"와 같은 형태라고 가정합니다.
         // 먼저 "-"와 " "로 문자열을 분리합니다.

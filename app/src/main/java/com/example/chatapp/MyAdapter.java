@@ -63,10 +63,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        //return super.getItemViewType(position);
-        if(mDataSet.get(position).email.equals(stMyEmail)){ // 로그인 된 이메일과 송신자의 이메일이 같다면
-            return 1;
-        }else return 2;
+        if (position < mDataSet.size() && mDataSet.get(position) != null) {
+            if (mDataSet.get(position).receivuser.equals(stMyEmail)) { // 로그인 된 이메일과 송신자의 이메일이 같다면
+                return 1;
+            } else {
+                return 2;
+            }
+        } else {
+            // 적절한 기본값을 반환하거나, 오류를 로깅하거나, 예외를 던질 수 있습니다.
+            // 이 예제에서는 기본적으로 0을 반환합니다.
+            return 0;
+        }
     }
 
     /**

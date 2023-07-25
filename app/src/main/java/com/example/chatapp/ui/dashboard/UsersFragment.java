@@ -7,15 +7,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder;
@@ -68,6 +74,9 @@ public class UsersFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.users_dashboard, container, false);
 
+        //((AppCompatActivity) getActivity()).getSupportActionBar().hide();//플래그먼트 액션바 숨기기
+
+
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
@@ -99,7 +108,9 @@ public class UsersFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 userArrayList.clear(); // 기존 데이터를 지우고 새로운 데이터를 추가합니다.
-                Log.d(TAG, "onDataChange: " + snapshot.getValue().toString());
+                if (snapshot.getValue() != null) {
+                    Log.d(TAG, "onDataChange: " + snapshot.getValue().toString());
+                }
 
                 for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                     Log.d(TAG, "datasnapshot1: " + snapshot1.getValue().toString());

@@ -7,6 +7,26 @@ public class ChatRoom {
     String name;
     String message;
     String time;
+    private String chatRoomKey;
+    String partnerName;
+    String PartnerEmail;
+
+    public String getPartnerEmail() {
+        return PartnerEmail;
+    }
+
+    public void setPartnerEmail(String email) {
+        this.PartnerEmail = email;
+    }
+
+    public String getPartnerName() {
+        return partnerName;
+    }
+
+    public void setPartnerName(String partnerName) {
+        this.partnerName = partnerName;
+    }
+
     private Map<String, Boolean> users;
 
     public Map<String, Boolean> getUsers() {
@@ -57,5 +77,14 @@ public class ChatRoom {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getChatRoomKey() {
+        return chatRoomKey;
+    }
+
+    public void setChatRoomKey(String chatRoomKey) {
+        this.chatRoomKey = chatRoomKey;
+    }
+
 
 }

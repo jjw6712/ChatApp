@@ -1,6 +1,16 @@
 package com.example.chatapp;
 
 public class Chat {
+    public String receivuser;
+
+    public String getReceivuser() {
+        return receivuser;
+    }
+
+    public void setReceivuser(String receivuser) {
+        this.receivuser = receivuser;
+    }
+
     String email;
     String message;
     String name;

@@ -16,6 +16,8 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        ((AppCompatActivity) ProfileActivity.this).getSupportActionBar().hide();//플래그먼트 액션바 숨기기
+
         // Intent로 전달된 데이터를 가져옵니다.
         Intent intent = getIntent();
         stEmail = intent.getStringExtra("email");

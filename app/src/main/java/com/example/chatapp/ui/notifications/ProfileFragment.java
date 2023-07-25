@@ -12,18 +12,25 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -51,17 +58,17 @@ import java.net.URL;
  * 갤러리에서 프로필 사진을 가져오는 기능 구현
  */
 public class ProfileFragment extends Fragment {
-    int REQUEST_IMAGE_CODE = 1001;
-    int REQUEST_EXTERNAL_STORAGE_PERMISSION = 1002;
-    ImageView ivUser;
+    int REQUEST_IMAGE_CODE_USER = 1001;
+    int REQUEST_IMAGE_CODE_USER_BACK = 1002;
+    int REQUEST_EXTERNAL_STORAGE_PERMISSION = 1003;
+    ImageView ivUser, ivUserBack;
     private FirebaseStorage storage;
     private StorageReference storageRef;
     String stEmail, stName;
-    File localFile;
+    File localFileUser;
+    File localFileBack;
     TextView profileName, ivUsertext;
 
-
-    // 정적 메서드를 이용해 새로운 ProfileFragment 인스턴스를 생성하고 인자를 전달합니다.
     public static ProfileFragment newInstance(String email, String name) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
@@ -70,76 +77,79 @@ public class ProfileFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    //private FragmentNotificationsBinding binding;
 
-    @SuppressLint("MissingInflatedId")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-       // NotificationsViewModel notificationsViewModel =
-       //         new ViewModelProvider(this).get(NotificationsViewModel.class);
-
-        //binding = FragmentNotificationsBinding.inflate(inflater, container, false);
-
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
-        ivUser = root.findViewById(R.id.ivUser);
-        profileName = root.findViewById(R.id.profileName);
-        ivUsertext = root.findViewById(R.id.ivUserText);
-        // 이미지를 선택하지 않았을 때만 텍스트가 보이도록 설정
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //상태바를 투명하게 만들고, 이미지를 상태바 까지 적용
+            Window w = getActivity().getWindow();
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+
+        ivUser = root.findViewById(R.id.ivUser);
+        ivUserBack = root.findViewById(R.id.ivUserBackground);
+        profileName = root.findViewById(R.id.userName);
+        ivUsertext = root.findViewById(R.id.ivUserText);
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("shared", Context.MODE_PRIVATE);
         stEmail = sharedPref.getString("email", "");
         stName = sharedPref.getString("name", "");
         Log.d(TAG, "stEmail: " + stEmail);
 
-        profileName.setText(stName+"님의 프로필");
-
+        profileName.setText(stName);
 
         storage = FirebaseStorage.getInstance();
-        // Create a storage reference from our app
         storageRef = storage.getReference();
 
-
-
-        //final TextView textView = binding.textNotifications;
-        //notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // 권한이 없는 경우, 권한 요청을 해야 합니다.
             ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_STORAGE_PERMISSION);
         }
-        ivUser = root.findViewById(R.id.ivUser);
+
         ivUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, REQUEST_IMAGE_CODE);
+                startActivityForResult(intent, REQUEST_IMAGE_CODE_USER);
+            }
+        });
+        try {
+            localFileUser = File.createTempFile("userimages", "jpg");
+            StorageReference riversRef = storageRef.child("users").child(stEmail).child("profile.jpg");
+            riversRef.getFile(localFileUser).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Glide.with(getContext())
+                            .load(localFileUser)
+                            .transform(new CenterCrop(), new RoundedCorners(200))
+                            .into(ivUser);
+                    ivUsertext.setVisibility(View.GONE);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        ivUserBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_IMAGE_CODE_USER_BACK);
             }
         });
 
 
         try {
-            localFile = File.createTempFile("images", "jpg");
-            StorageReference riversRef = storageRef.child("users").child(stEmail).child("profile.jpg");
-            riversRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            localFileBack = File.createTempFile("backimages", "jpg");
+            StorageReference riversRef = storageRef.child("users").child(stEmail).child("profileBack.jpg");
+            riversRef.getFile(localFileBack).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    // Local temp file has been created
-                    // Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                    // ivUser.setImageBitmap(bitmap);
-
-                    // Glide로 이미지를 로드하고 둥근 모서리 처리를 적용합니다.
                     Glide.with(getContext())
-                            .load(localFile)
-                            .transform(new CenterCrop(), new RoundedCorners(200)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
-                            .into(ivUser);
+                            .load(localFileBack )
+                            .transform(new CenterCrop())
+                            .into(ivUserBack);
                     ivUsertext.setVisibility(View.GONE);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
                 }
             });
         } catch (IOException e) {
@@ -147,38 +157,47 @@ public class ProfileFragment extends Fragment {
         }
 
         return root;
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_IMAGE_CODE && resultCode == Activity.RESULT_OK && data != null) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
             Uri image = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), image);
-                ivUser.setImageBitmap(bitmap);
-            } catch (IOException e) {
+                if (requestCode == REQUEST_IMAGE_CODE_USER) {
+                    StorageReference riversRef = storageRef.child("users").child(stEmail).child("profile.jpg");
+                    riversRef.putFile(image)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    try {
+                                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), image);
+                                        ivUser.setImageBitmap(bitmap);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            });
+                } else if (requestCode == REQUEST_IMAGE_CODE_USER_BACK) {
+                    StorageReference riversRef = storageRef.child("users").child(stEmail).child("profileBack.jpg");
+                    riversRef.putFile(image)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    try {
+                                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), image);
+                                        ivUserBack.setImageBitmap(bitmap);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            });
+                }
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
-            //Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
-            StorageReference riversRef = storageRef.child("users").child(stEmail).child("profile.jpg");
-            riversRef.putFile(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, taskSnapshot.toString());
-
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-
-                }
-            });
-
-
         }
     }
 
