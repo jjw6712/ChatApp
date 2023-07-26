@@ -7,7 +7,7 @@ Android Studio &amp; FireBase를 활용한 ChatApp
 
 로그인과 회원가입 버튼이 있다.
 
-![9881-2023-7-26-16-24.png](/files/6959) 
+[![9881-2023-7-26-16-24.png](/files/6959) ](http://kas.ikw.ac.kr/files/6959)
 
 ## 회원가입 화면
 
