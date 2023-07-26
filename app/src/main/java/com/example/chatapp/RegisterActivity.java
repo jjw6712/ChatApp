@@ -38,6 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
 
+        ((AppCompatActivity) RegisterActivity.this).getSupportActionBar().hide();//플래그먼트 액션바 숨기기
+
         database = FirebaseDatabase.getInstance();//DB초기화
         mAuth = FirebaseAuth.getInstance();
 
