@@ -11,8 +11,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:background="@drawable/profile_bubble"
         android:id="@+id/ivUser"/>
 
@@ -28,7 +28,8 @@
             android:textStyle="bold"
             android:id="@+id/tvName"
             android:padding="5dp"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
 
         <TextView
             android:layout_width="wrap_content"

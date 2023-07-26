@@ -2,50 +2,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:gravity="center_vertical"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
+    android:clickable="true"
+
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:background="@drawable/profile_bubble"
-        android:id="@+id/ivProfileUser"/>
-
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="10dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
 
-        <TextView
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/profile_bubble"
+            android:id="@+id/ivProfileUser"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:id="@+id/tvProfileName"
-            android:padding="5dp"
-            android:textSize="16sp"/>
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tvProfileEmail"
-            android:padding="5dp"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:id="@+id/tvProfileName"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvProfileEmail"
+                android:padding="5dp"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"/>
+
+
+        </LinearLayout>
 
 
     </LinearLayout>
 
-    <Button
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_vertical|end"
-        android:text="프로필 수정"
-        android:id="@+id/changeProfile"/>
+    <!-- This is the line separator -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="#FFD3D3D3"/>
+
+    <TextView
+        android:id="@+id/userCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="친구"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="3dp"/>
 
 </LinearLayout>

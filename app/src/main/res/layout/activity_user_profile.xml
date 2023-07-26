@@ -10,11 +10,11 @@
         android:id="@+id/ivUserBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#d7e9fd"
         android:clickable="false"
         android:scaleType="centerCrop"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp"
-        android:background="#d7e9fd"/>
+        tools:layout_editor_absoluteY="0dp" />
 
     <ImageButton
         android:id="@+id/btExit"
@@ -87,5 +87,17 @@
         android:textStyle="bold"
         android:text="이름"
         android:layout_below="@+id/userProfileContainer" />
+
+    <Button
+        android:id="@+id/chatButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userName"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="@color/black"
+        android:text="1:1 채팅 시작하기"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

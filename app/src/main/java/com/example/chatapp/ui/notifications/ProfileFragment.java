@@ -25,6 +25,8 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,6 +41,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.chatapp.ProfileActivity;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -67,7 +70,24 @@ public class ProfileFragment extends Fragment {
     String stEmail, stName;
     File localFileUser;
     File localFileBack;
-    TextView profileName, ivUsertext;
+    TextView profileName, ivUsertext, ivUserBacktext;
+    ImageButton btExit;
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        btExit = view.findViewById(R.id.btExit);
+
+        // Check if the hosting activity is an instance of HostingActivity
+        if (getActivity() instanceof ProfileActivity) {
+            // If so, make the btExit button visible
+            btExit.setVisibility(View.VISIBLE);
+        } else {
+            // Otherwise, hide the btExit button
+            btExit.setVisibility(View.GONE);
+        }
+    }
 
     public static ProfileFragment newInstance(String email, String name) {
         ProfileFragment fragment = new ProfileFragment();
@@ -82,15 +102,18 @@ public class ProfileFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //상태바를 투명하게 만들고, 이미지를 상태바 까지 적용
             Window w = getActivity().getWindow();
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
+        btExit = root.findViewById(R.id.btExit);
         ivUser = root.findViewById(R.id.ivUser);
         ivUserBack = root.findViewById(R.id.ivUserBackground);
         profileName = root.findViewById(R.id.userName);
         ivUsertext = root.findViewById(R.id.ivUserText);
+        ivUserBacktext = root.findViewById(R.id.ivUserBackgroundText);
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("shared", Context.MODE_PRIVATE);
         stEmail = sharedPref.getString("email", "");
@@ -106,6 +129,14 @@ public class ProfileFragment extends Fragment {
             ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_STORAGE_PERMISSION);
         }
 
+        btExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(getActivity() != null){
+                    getActivity().finish();
+                }
+            }
+        });
         ivUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,7 +180,7 @@ public class ProfileFragment extends Fragment {
                             .load(localFileBack )
                             .transform(new CenterCrop())
                             .into(ivUserBack);
-                    ivUsertext.setVisibility(View.GONE);
+                    ivUserBacktext.setVisibility(View.GONE);
                 }
             });
         } catch (IOException e) {

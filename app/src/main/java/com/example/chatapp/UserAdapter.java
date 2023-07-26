@@ -1,11 +1,9 @@
 package com.example.chatapp;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,13 +22,12 @@ import java.util.ArrayList;
 
 public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public Button changeProfile;
-
     private static final int VIEW_TYPE_PROFILE = 0;
     private static final int VIEW_TYPE_USER = 1;
 
     private ArrayList<User> mDataSet;
     String currentUserEmail, currentUserName;
+    private RecyclerView.ViewHolder profileViewHolder;
 
     public void setCurrentUserEmail(String email) {
         this.currentUserEmail = email;
@@ -46,9 +43,9 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.listener = listener;
     }
 
-    private View.OnClickListener profileClickListener;
+    private OnItemClickListener profileClickListener;
 
-    public void setProfileClickListener(View.OnClickListener listener) {
+    public void setProfileClickListener(OnItemClickListener listener) {
         profileClickListener = listener;
     }
 
@@ -59,16 +56,15 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         public TextView tvProfileEmail;
         public TextView tvProfileName;
+        public TextView tvuserCount;
         public ImageView ivProfileUser;
-
-        public Button changeProfile;
 
         public ProfileViewHolder(View view) {
             super(view);
+            tvuserCount = view.findViewById(R.id.userCount);
             tvProfileEmail = view.findViewById(R.id.tvProfileEmail);
             tvProfileName = view.findViewById(R.id.tvProfileName);
             ivProfileUser = view.findViewById(R.id.ivProfileUser);
-            changeProfile = view.findViewById(R.id.changeProfile);
         }
     }
 
@@ -100,7 +96,6 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mDataSet = myDataSet;
         this.currentUserEmail = stEmail;
         this.currentUserName = stName;
-
     }
 
     @Override
@@ -115,8 +110,6 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .inflate(R.layout.user_item_view, viewGroup, false);
             return new UserViewHolder(view);
         }
-
-
     }
 
     @Override
@@ -128,9 +121,7 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             User currentUserProfile = mDataSet.get(0);
             profileViewHolder.tvProfileEmail.setText(currentUserProfile.getEmail());
             profileViewHolder.tvProfileName.setText(currentUserProfile.getName());
-
-            // Set the click listener for the profile view
-            profileViewHolder.changeProfile.setOnClickListener(profileClickListener);
+            profileViewHolder.tvuserCount.setText("친구 "+(getItemCount() - 1)); // 친구 명수 표시
 
             // Firebase Storage에서 사용자의 프로필 사진을 다운로드하여 이미지뷰에 설정합니다.
             String profileImageRef = "users/" + currentUserProfile.getEmail() + "/profile.jpg";
@@ -145,18 +136,28 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 .error(R.mipmap.ic_launcher) // You can add an error image if there's a failure.
                                 .transform(new CenterCrop(), new RoundedCorners(85)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
                                 .into(profileViewHolder.ivProfileUser);
-                    } else {
-                        // uri가 null인 경우 기본 이미지를 설정하거나 오류 처리를 수행할 수 있습니다.
-                        // 여기서는 기본 이미지를 설정하지 않고 그냥 넘어갑니다.
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    // 다운로드에 실패한 경우 기본 이미지 또는 오류 처리를 수행할 수 있습니다.
-                    // 여기서는 기본 이미지를 설정하지 않고 그냥 넘어갑니다.
                 }
             });
+
+            // Set the click listener for the profile view
+            profileViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (profileClickListener != null) {
+                        int clickedPosition = viewHolder.getAdapterPosition();
+                        User user = mDataSet.get(clickedPosition);
+                        if (user.getEmail().equals(currentUserEmail)) {
+                            profileClickListener.onItemClick(user);
+                        }
+                    }
+                }
+            });
+
         } else {
             UserViewHolder userViewHolder = (UserViewHolder) viewHolder;
             User user = mDataSet.get(position);
@@ -176,32 +177,28 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 .error(R.mipmap.ic_launcher) // You can add an error image if there's a failure.
                                 .transform(new CenterCrop(), new RoundedCorners(85)) // 둥근 모서리 처리 (반지름 값을 조정하여 모서리의 둥글기를 조절)
                                 .into(userViewHolder.ivUser);
-                    } else {
-                        // uri가 null인 경우 기본 이미지를 설정하거나 오류 처리를 수행할 수 있습니다.
-                        // 여기서는 기본 이미지를 설정하지 않고 그냥 넘어갑니다.
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    // 다운로드에 실패한 경우 기본 이미지 또는 오류 처리를 수행할 수 있습니다.
-                    // 여기서는 기본 이미지를 설정하지 않고 그냥 넘어갑니다.
+                }
+            });
+
+            // Set the click listener for the user view
+            userViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (listener != null) {
+                        int clickedPosition = viewHolder.getAdapterPosition();
+                        User user = mDataSet.get(clickedPosition);
+                        if (!user.getEmail().equals(currentUserEmail)) {
+                            listener.onItemClick(user);
+                        }
+                    }
                 }
             });
         }
-
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    int clickedPosition = viewHolder.getAdapterPosition();
-                    User user = mDataSet.get(clickedPosition);
-                    if (!user.getEmail().equals(currentUserEmail)) {
-                        listener.onItemClick(user);
-                    }
-                }
-            }
-        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

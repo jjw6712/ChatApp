@@ -34,6 +34,7 @@ import com.example.chatapp.ProfileActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.User;
 import com.example.chatapp.UserAdapter;
+import com.example.chatapp.UserProfileActivity;
 import com.example.chatapp.ui.notifications.ProfileFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -134,18 +135,19 @@ public class UsersFragment extends Fragment {
         uAdapter.setOnItemClickListener(new UserAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(User user) {
-                // 해당 유저와의 ChatActivity로 이동하는 코드를 작성합니다.
-                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                // 해당 유저와의 UserprofileActivity로 이동
+                Intent intent = new Intent(getActivity(), UserProfileActivity.class);
                 intent.putExtra("email", user.getEmail());
                 intent.putExtra("name", user.getName());
                 startActivity(intent);
             }
         });
         // 클릭 이벤트 리스너 추가 (프로필 클릭 이벤트 처리)
-        uAdapter.setProfileClickListener(new View.OnClickListener() {
+        uAdapter.setProfileClickListener(new UserAdapter.OnItemClickListener(){
             @Override
-            public void onClick(View view) {
+            public void onItemClick(User user) {
                 // 프로필 화면으로 이동하는 코드를 작성합니다.
+                Log.d("ProfileClick", "Profile item clicked");
                 Intent intent = new Intent(getActivity(), ProfileActivity.class);
                 intent.putExtra("email", stEmail);
                 intent.putExtra("name", stName);

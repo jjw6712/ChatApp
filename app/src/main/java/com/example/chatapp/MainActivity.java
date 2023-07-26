@@ -42,6 +42,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Check if the user is already logged in
+        SharedPreferences sharedPref = getSharedPreferences("Login", MODE_PRIVATE);
+        boolean loggedIn = sharedPref.getBoolean("LoggedIn", false);
+
+
+        if (loggedIn) {
+            // User is already logged in, so go directly to the TabActivity
+            Intent intent = new Intent(MainActivity.this, TabActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         ((AppCompatActivity) MainActivity.this).getSupportActionBar().hide();//플래그먼트 액션바 숨기기
 
         database = FirebaseDatabase.getInstance();//DB초기화
@@ -85,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("email", stUserEmail);
                                     editor.putString("name", stUserName);
+                                    editor.commit();
+
+                                    sharedPref = getSharedPreferences("Login", MODE_PRIVATE);
+                                    editor = sharedPref.edit();
+                                    editor.putBoolean("LoggedIn", true);
                                     editor.commit();
 
                                     Toast.makeText(MainActivity.this, "로그인 성공!!", Toast.LENGTH_SHORT).show();
