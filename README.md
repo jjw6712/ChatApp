@@ -58,7 +58,7 @@ Android Studio &amp; FireBase를 활용한 ChatApp
 ## 채팅 화면
 
 상대방의 사진, 이름을 보여주고 메세지와 메세지를 송 수신한 시간을 함께 보여준다.
-![image](https://github.com/jjw6712/ChatApp/assets/91660287/72ac3fdc-d387-41b5-872c-2a95289458ea)![image](https://github.com/jjw6712/ChatApp/assets/91660287/36274639-3efe-4473-a104-9c661fe2be48)
+![image](https://github.com/jjw6712/ChatApp/assets/91660287/72ac3fdc-d387-41b5-872c-2a95289458ea)![image](https://github.com/jjw6712/ChatApp/assets/91660287/36274639-3efe-4473-a104-9c661fe2be48){: width="50%" height="50%"}
 
 
 
