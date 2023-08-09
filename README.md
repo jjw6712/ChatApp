@@ -7,7 +7,7 @@ Android Studio &amp; FireBase를 활용한 ChatApp
 
 로그인과 회원가입 버튼이 있다.
 
-![image](https://github.com/jjw6712/ChatApp/assets/91660287/eddfbd50-3325-47ac-b888-db9d8b5d9cc5)
+![image](https://github.com/jjw6712/ChatApp/assets/91660287/eddfbd50-3325-47ac-b888-db9d8b5d9cc5){: width="10%" height="10%"}
 
 
 ## 회원가입 화면
