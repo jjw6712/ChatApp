@@ -78,7 +78,8 @@ Android Studio &amp; FireBase를 활용한 ChatApp
 
 # Firebase의 Realtime Datebase를 활용하여 채팅 기능 구현
 
-![image](https://github.com/jjw6712/ChatApp/assets/91660287/fbfc859a-9827-4d64-88cd-14b6b73c7fc1)
+![image](https://github.com/jjw6712/ChatApp/assets/91660287/2a5af66c-33c6-4d54-9343-8a5886238426)
+
 
 
 
